@@ -9,4 +9,4 @@ const calculatorCompiler = compiler({
 	aggregate: calculatorAggregate,
 });
 
-console.dir(calculatorCompiler(fs.readFileSync(0, 'utf-8')));
+console.dir(calculatorCompiler(fs.readFileSync(0, 'utf-8')), { depth: null });

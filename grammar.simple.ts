@@ -5,7 +5,7 @@ import { grammarAggregate, grammarAnalyzer, grammarLang } from './grammar';
 const grammarCompiler = compiler({
 	lexer: grammarAnalyzer,
 	lang: grammarLang,
-	aggregate: grammarAggregate,
+	// aggregate: grammarAggregate,
 });
 
 // eslint-disable-next-line no-console

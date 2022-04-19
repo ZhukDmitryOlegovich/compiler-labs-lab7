@@ -52,6 +52,9 @@ const createFirst = (lang: Language): Record<string, Set<string | typeof EPSILON
 			})));
 	} while (wasChange);
 
+	// console.log('CREATE_FIRST');
+	// console.dir(first, { depth: null });
+
 	return first;
 };
 
@@ -102,6 +105,9 @@ const createFollow = (
 			}
 		}));
 	} while (wasChange);
+
+	// console.log('CREATE_FOLLOW');
+	// console.dir(follow, { depth: null });
 
 	return follow;
 };
@@ -158,6 +164,9 @@ const createTable = (
 			}
 		},
 	));
+
+	// console.log('CREATE_TABLE');
+	// console.dir(deta, { depth: null });
 
 	return deta;
 };
@@ -235,11 +244,11 @@ class Wrapper<L extends { type: string }> {
 
 export const compiler = <L extends { type: string }>({
 	// eslint-disable-next-line no-console
-	lexer, lang, aggregate, print = (s) => console.log(s.replace(/^/gm, '> ')),
+	lexer, lang, aggregate = {}, print = (s) => console.log(s.replace(/^/gm, '> ')),
 }: {
 	lexer: ReturnType<Wrapper<L>['lexicalAnalyzer']>,
 	lang: Language,
-	aggregate: Record<string, ((...args: any[]) => any) | undefined>,
+	aggregate?: Record<string, ((...args: any[]) => any) | undefined>,
 	print?: (s: string) => void,
 }) => (s: string): { ok: true, res: any } | { ok: false, res: undefined } => {
 		let lexems: SmartLexems<L>[];
@@ -306,7 +315,12 @@ export const compiler = <L extends { type: string }>({
 
 			const aggreg = aggregate[nterm];
 			// console.log(res);
-			return aggreg ? aggreg(...res) : res;
+			if (aggreg) {
+				return aggreg(...res);
+			}
+			// @ts-ignore
+			res.nterm = nterm;
+			return res;
 		};
 
 		let res;
