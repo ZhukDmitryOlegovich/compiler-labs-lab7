@@ -123,7 +123,7 @@ const createFirstAndFollow = (lang: Language) => {
 // 	)),
 // );
 
-const createTable = (
+export const createTable = (
 	lang: Language, { first, follow } = createFirstAndFollow(lang),
 ) => {
 	// const terms = getTerminals(lang);
@@ -244,10 +244,12 @@ class Wrapper<L extends { type: string }> {
 
 export const compiler = <L extends { type: string }>({
 	// eslint-disable-next-line no-console
-	lexer, lang, aggregate = {}, print = (s) => console.log(s.replace(/^/gm, '> ')),
+	lexer, table, aggregate = {}, axiom = 'E',
+	print = (s) => console.log(s.replace(/^/gm, '> ')),
 }: {
 	lexer: ReturnType<Wrapper<L>['lexicalAnalyzer']>,
-	lang: Language,
+	table: ReturnType<typeof createTable>,
+	axiom: string,
 	aggregate?: Record<string, ((...args: any[]) => any) | undefined>,
 	print?: (s: string) => void,
 }) => (s: string): { ok: true, res: any } | { ok: false, res: undefined } => {
@@ -261,19 +263,6 @@ export const compiler = <L extends { type: string }>({
 			print(`             groups: ${JSON.stringify(groups)}`);
 			print(`             from: ${JSON.stringify(from)}`);
 			print(`             to: ${JSON.stringify(to)}`);
-			return { ok: false, res: undefined };
-		}
-
-		let table: ReturnType<typeof createTable>;
-		try {
-			table = createTable(lang);
-		} catch ({
-			message, X, a, value,
-		}) {
-			print(`Table Error: ${message}`);
-			print(`             X: ${JSON.stringify(X)}`);
-			print(`             a: ${JSON.stringify(a)}`);
-			print(`             value: ${JSON.stringify(value)}`);
 			return { ok: false, res: undefined };
 		}
 
@@ -325,7 +314,7 @@ export const compiler = <L extends { type: string }>({
 
 		let res;
 		try {
-			res = calc(lang.axiom);
+			res = calc(axiom);
 		} catch ({ message, nterm, currentLexem }) {
 			print(`Calc Error: ${message}`);
 			print(`            nterm: ${JSON.stringify(nterm)}`);
@@ -338,3 +327,24 @@ export const compiler = <L extends { type: string }>({
 
 export const term = (value: string): Term => ({ type: 'term', value });
 export const nterm = (value: string): Nterm => ({ type: 'nterm', value });
+
+export const saveTable = (t: ReturnType<typeof createTable>) => {
+	Object.values(t).forEach((a) => {
+		if (a && a[EOF]) {
+			a[''] = a[EOF];
+			delete a[EOF];
+		}
+	});
+	return JSON.stringify(t);
+};
+
+export const loadTable = (dupl: any) => {
+	const t: ReturnType<typeof createTable> = JSON.parse(dupl);
+	Object.values(t).forEach((a) => {
+		if (a && a['']) {
+			a[EOF] = a[''];
+			delete a[''];
+		}
+	});
+	return t;
+};

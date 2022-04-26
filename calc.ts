@@ -19,7 +19,7 @@ type CalculatorLexems =
 	;
 
 export const calculatorAnalyzer = lexicalAnalyzer<CalculatorLexems>({
-	reg: /^(?:(?<plus>\+)|(?<n>\d+)|(?<mul>\*)|(?<open>\()|(?<close>\))|(?<error>.))/,
+	reg: /^(?:(?<plus>\+)|(?<n>\d+)|(?<mul>\*)|(?<open>\()|(?<close>\))|(?<space>\s+)|(?<error>.))/,
 	rules: {
 		plus: (value) => ({ value, type: CalculatorType.PLUS }),
 		mul: (value) => ({ value, type: CalculatorType.MUL }),

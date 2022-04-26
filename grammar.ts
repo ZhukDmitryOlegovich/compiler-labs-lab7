@@ -1,4 +1,5 @@
 import {
+	createTable,
 	Language, lexicalAnalyzer, nterm, Rule, Rules, term,
 } from '.';
 
@@ -65,7 +66,7 @@ type Nterm = {
 };
 
 export const grammarAggregate = {
-	Init: (...args: [Nterm, Nterm[]]): Language => {
+	Init: (...args: [Nterm, Nterm[]]) => {
 		const nterms = [args[0], ...args[1]];
 		const axioms = nterms.filter(({ isAxiom }) => isAxiom);
 
@@ -73,10 +74,10 @@ export const grammarAggregate = {
 			throw new Error(`not one axioms: found [${axioms.map(({ name }) => name).join(', ')}]`);
 		}
 
-		return {
+		return createTable({
 			axiom: axioms[0].name,
 			nterms: Object.fromEntries(nterms.map(({ name, rules }) => [name, rules])),
-		};
+		});
 	},
 	Nterms: (...args: [] | [Nterm, Nterm[]]) => (args.length === 0 ? [] : [args[0], ...args[1]]),
 	Nterm: (...args: [{type: 'axiom' | 'nterm', value: string}, any, Rule, Rules]): Nterm => {
